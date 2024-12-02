@@ -944,34 +944,45 @@
       }
     });
 
-    // Function to check if an element is in viewport
-    function isElementInViewport(el) {
-      const rect = el.getBoundingClientRect();
-      return (
-        rect.top >= 0 &&
-        rect.left >= 0 &&
-        rect.bottom <=
-          (window.innerHeight || document.documentElement.clientHeight) &&
-        rect.right <=
-          (window.innerWidth || document.documentElement.clientWidth)
-      );
-    }
-
     document.addEventListener("DOMContentLoaded", function () {
-      // Only show hint on mobile devices
-      if (window.innerWidth < 1024) {
+      // Only show hint on mobile devices and touch-enabled screens
+      const isMobileDevice = window.innerWidth < 1024;
+      const isTouchDevice =
+        "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
+      if (isMobileDevice && isTouchDevice) {
         const tapHint = document.getElementById("tap-hint");
-        const teamSection = document.querySelector(".team-section");
-        const firstTeamMember = document.querySelector(".team-member");
+        const teamMembers = document.querySelectorAll(".team-member");
+        const firstTeamMember = teamMembers[0];
+
         let hintShown = false;
+
+        // Function to check if an element is in viewport
+        function isElementInViewport(el) {
+          const rect = el.getBoundingClientRect();
+          return (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <=
+              (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <=
+              (window.innerWidth || document.documentElement.clientWidth)
+          );
+        }
 
         // Function to handle hint display
         function checkAndShowHint() {
+          const teamSection = document.getElementById("team");
+
           if (!hintShown && teamSection && isElementInViewport(teamSection)) {
             // Show hint and add pulse to first card after a short delay
             setTimeout(() => {
-              tapHint.classList.add("visible");
-              firstTeamMember.classList.add("pulse");
+              if (tapHint) {
+                tapHint.classList.add("visible");
+              }
+              if (firstTeamMember) {
+                firstTeamMember.classList.add("pulse");
+              }
               hintShown = true;
             }, 1500);
           }
@@ -980,15 +991,30 @@
         // Check on scroll
         window.addEventListener("scroll", checkAndShowHint);
 
-        // Hide hint and remove pulse after first tap or after 5 seconds
-        const hideHint = () => {
-          tapHint.classList.remove("visible");
-          firstTeamMember.classList.remove("pulse");
+        // Hide hint and remove pulse on first interaction
+        function hideHint() {
+          if (tapHint) {
+            tapHint.classList.remove("visible");
+          }
+          if (firstTeamMember) {
+            firstTeamMember.classList.remove("pulse");
+          }
+
+          // Remove event listeners
           window.removeEventListener("scroll", checkAndShowHint);
           document.removeEventListener("click", hideHint);
-        };
+          teamMembers.forEach((member) => {
+            member.removeEventListener("click", hideHint);
+          });
+        }
 
+        // Add multiple event listeners to ensure hint is hidden
         document.addEventListener("click", hideHint);
+        teamMembers.forEach((member) => {
+          member.addEventListener("click", hideHint);
+        });
+
+        // Hide hint after 5 seconds automatically
         setTimeout(hideHint, 5000);
 
         // Initial check
