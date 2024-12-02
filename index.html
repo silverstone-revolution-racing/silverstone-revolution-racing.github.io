@@ -236,6 +236,44 @@
         max-width: 100%;
         line-height: 1.6;
       }
+      /* Add this to your existing CSS */
+      .tap-hint {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: var(--dark);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        z-index: 40;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .tap-hint.visible {
+        opacity: 1;
+      }
+
+      /* Add a subtle pulse animation to the first card */
+      @keyframes subtle-pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.02);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .team-member.pulse {
+        animation: subtle-pulse 2s infinite;
+      }
     </style>
   </head>
   <body>
@@ -841,6 +879,9 @@
         </div>
       </div>
     </footer>
+    <div id="tap-hint" class="tap-hint">
+      Tap cards to learn more about our team
+    </div>
   </body>
   <script>
     function toggleMenu() {
@@ -902,6 +943,31 @@
             member.classList.remove("expanded");
           }
         });
+      }
+    });
+
+    // Add this to your existing script
+    document.addEventListener("DOMContentLoaded", function () {
+      // Only show hint on mobile devices
+      if (window.innerWidth < 1024) {
+        const tapHint = document.getElementById("tap-hint");
+        const firstTeamMember = document.querySelector(".team-member");
+
+        // Show hint and add pulse to first card after a short delay
+        setTimeout(() => {
+          tapHint.classList.add("visible");
+          firstTeamMember.classList.add("pulse");
+        }, 1500);
+
+        // Hide hint and remove pulse after first tap or after 5 seconds
+        const hideHint = () => {
+          tapHint.classList.remove("visible");
+          firstTeamMember.classList.remove("pulse");
+          document.removeEventListener("click", hideHint);
+        };
+
+        document.addEventListener("click", hideHint);
+        setTimeout(hideHint, 5000);
       }
     });
   </script>
