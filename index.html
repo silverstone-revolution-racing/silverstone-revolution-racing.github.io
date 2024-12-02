@@ -236,12 +236,13 @@
         max-width: 100%;
         line-height: 1.6;
       }
+      /* Add these styles to your existing CSS */
       .tap-hint {
         position: fixed;
         bottom: 20px;
         left: 50%;
         transform: translateX(-50%);
-        background-color: var(--dark);
+        background-color: #1d201f;
         color: white;
         padding: 8px 16px;
         border-radius: 20px;
@@ -954,7 +955,6 @@
         const tapHint = document.getElementById("tap-hint");
         const teamMembers = document.querySelectorAll(".team-member");
         const firstTeamMember = teamMembers[0];
-
         let hintShown = false;
 
         // Function to check if an element is in viewport
